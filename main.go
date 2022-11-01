@@ -47,7 +47,15 @@ func ResizeImages(ctx context.Context, e GCSEvent) error {
 		return fmt.Errorf("cmd.Run: %v", err)
 	}
 
-	log.Printf("Resized image uploaded to gs://%s/%s", outputBlob.BucketName(), outputBlob.ObjectName())
+	log.Printf("Resized image uploaded to gs://%s/%s\n", outputBlob.BucketName(), outputBlob.ObjectName())
+
+	o := storageClient.Bucket(e.Bucket).Object(e.Name)
+
+	if err := o.Delete(ctx); err != nil {
+		return fmt.Errorf("Object(%q).Delete: %v", e.Name, err)
+	}
+
+	log.Printf("Blob %v deleted\n", e.Name)
 
 	return nil
 }
